@@ -23,27 +23,29 @@ public class MinaServer {
     public static ConcurrentHashMap<String, IoSession> sessions = new ConcurrentHashMap<String, IoSession>();
     private final static Logger log = LoggerFactory.getLogger(MinaServer.class);
     @Autowired
+    private SessionFilter sessionFilter;
+    @Autowired
     private ServerHandler serverHandler;
     @Autowired
     private MessageCodecFactory messageCodecFactory;
 
-    public void startMina() throws IOException {
+    public void startMina(int port) throws IOException {
         NioSocketAcceptor acceptor = new NioSocketAcceptor();
         DefaultIoFilterChainBuilder chain = acceptor.getFilterChain();
 
         MdcInjectionFilter mdcInjectionFilter = new MdcInjectionFilter();
         chain.addLast("mdc", mdcInjectionFilter);
         chain.addLast("logger", new LoggingFilter());
-        chain.addLast("session", new SessionFilter());
+        chain.addLast("session", sessionFilter);
         chain.addLast("codec", new ProtocolCodecFilter(
                 new TextLineCodecFactory()));
 
         // Bind
         acceptor.setHandler(serverHandler);
-        acceptor.bind(new InetSocketAddress(Application.PORT));
+        acceptor.bind(new InetSocketAddress(port));
 
-        System.out.println("Listening on port " + Application.PORT);
-        log.info("Listening on port " + Application.PORT);
+        System.out.println("Listening on port " + port);
+        log.info("Listening on port " + port);
     }
 
     public void sendMesage(String to, byte[] message){

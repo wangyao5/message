@@ -1,6 +1,9 @@
 package com.mina;
 
 import com.Application;
+import com.message.MessageType;
+import com.message.MinaMessage;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,10 +14,6 @@ public class MinaClient {
 
     @Before
     public void init() throws Exception {
-//        ApplicationContext context =
-//                new AnnotationConfigApplicationContext(Application.class);
-//        application = (Application) context.getBean("application");
-
         MinaMessage message = new MinaMessage();
         message.setId("1");
         message.setFrom("chenxi");

@@ -91,9 +91,9 @@ public class TcpThread implements Runnable {
                     while ((line = in.readLine()) != null) {
                         android.util.Log.i(TAG, "3.getdata" + line + " len=" + line.length());
                         android.util.Log.i(TAG, "4.start set Message");
-                        Message msg = inHandler.obtainMessage();
-                        msg.obj = line;
-                        inHandler.sendMessage(msg);// 结果返回给UI处理
+//                        Message msg = inHandler.obtainMessage();
+//                        msg.obj = line;
+//                        inHandler.sendMessage(msg);// 结果返回给UI处理
                         android.util.Log.i(TAG1, "5.send to handler");
                     }
 
@@ -122,16 +122,16 @@ public class TcpThread implements Runnable {
                 out.println(mess);
                 out.flush();
                 android.util.Log.i(TAG1, "发送成功");
-                Message msg = outHandler.obtainMessage();
-                msg.obj = mess;
-                msg.what = 1;
-                outHandler.sendMessage(msg);// 结果返回给UI处理
+//                Message msg = outHandler.obtainMessage();
+//                msg.obj = mess;
+//                msg.what = 1;
+//                outHandler.sendMessage(msg);// 结果返回给UI处理
             } else {
                 android.util.Log.i(TAG, "client 不存在");
-                Message msg = outHandler.obtainMessage();
-                msg.obj = mess;
-                msg.what = 0;
-                outHandler.sendMessage(msg);// 结果返回给UI处理
+//                Message msg = outHandler.obtainMessage();
+//                msg.obj = mess;
+//                msg.what = 0;
+//                outHandler.sendMessage(msg);// 结果返回给UI处理
                 android.util.Log.i(TAG, "连接不存在重新连接");
                 conn();
             }

@@ -3,6 +3,8 @@ package com;
 import com.jgroups.CloudApi;
 import com.jgroups.CloudService;
 import com.mina.MinaServer;
+import com.zookeeper.ZkOperator;
+
 import org.jgroups.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -14,20 +16,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static com.jgroups.CloudService.selfAddress;
-import static com.jgroups.CloudService.selfCloudViewId;
-
 @Configuration
-@ComponentScan({"com.jgroups", "com.mina"})
+@ComponentScan({"com.jgroups", "com.mina", "com.zookeeper", "com"})
 @Component
 public class Application {
-    public static final int PORT = 9123;
-    public static Address address = selfAddress;
-    public static String cloundViewId = selfCloudViewId;
+    public Address address;
+    public String cloundViewId;
+    @Autowired
+    private Settings settings;
     @Autowired
     private CloudService cloudService;
     @Autowired
     private MinaServer minaServer;
+    @Autowired
+    private ZkOperator zkOperator;
+
+    public void initZk(){
+        zkOperator.initZK();
+        if (!zkOperator.exist(settings.getZnodePath())) {
+            zkOperator.createPersistent(settings.getZnodePath());
+        }
+    }
 
     public void startClound(){
         cloudService.setCloudApi(new CloudApi() {
@@ -40,7 +49,7 @@ public class Application {
             }
         });
         try {
-            cloudService.start();
+            cloudService.start(settings.getJClusterName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,17 +73,20 @@ public class Application {
 
     public void startMina(){
         try {
-            minaServer.startMina();
+            minaServer.startMina(settings.getMinaPort());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
+    public Settings getSettings(){
+        return settings;
+    }
     public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack", "true");
         ApplicationContext context =
                 new AnnotationConfigApplicationContext(Application.class);
         final Application app = (Application) context.getBean("application");
+        app.initZk();
         app.startClound();
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -84,5 +96,13 @@ public class Application {
         });
         thread.start();
         app.startMina();
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public void setCloundViewId(String cloundViewId) {
+        this.cloundViewId = cloundViewId;
     }
 }

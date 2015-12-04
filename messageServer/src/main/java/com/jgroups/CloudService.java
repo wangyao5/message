@@ -1,11 +1,15 @@
 package com.jgroups;
 
+import com.Application;
+
 import org.jgroups.*;
 import org.jgroups.util.Util;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,13 +24,13 @@ public class CloudService extends ReceiverAdapter {
     @Override
     public void viewAccepted(View new_view) {
         if (null == selfCloudViewId || "".equals(selfCloudViewId)) {
-            selfCloudViewId = new_view.getViewId().getCreator().toString();
+            selfCloudViewId = new_view.getViewId().getCreator().toString().replace("-","");
             selfAddress = new_view.getViewId().getCreator();
         }
         cloudAddresses.clear();
-        for (Address address : new_view.getMembers()) {
+        for (Address address : new_view.getMembersRaw()) {
             if (!address.toString().equals(selfCloudViewId)){
-                cloudAddresses.put(address.toString(), address);
+                cloudAddresses.put(address.toString().replace("-",""), address);
             }
         }
 
@@ -69,10 +73,10 @@ public class CloudService extends ReceiverAdapter {
         this.api = api;
     }
 
-    public void start() throws Exception {
+    public void start(String clusterName) throws Exception {
         channel = new JChannel();
         channel.setReceiver(this);
-        channel.connect("wangyao");
+        channel.connect(clusterName);
         channel.getState(null, 10000);
     }
 

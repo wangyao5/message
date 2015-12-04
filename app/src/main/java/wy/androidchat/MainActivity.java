@@ -14,8 +14,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        TcpThread runnable = new TcpThread(null,null,this);
-        Thread t = new Thread(runnable);
-        t.start();
+//        TcpThread runnable = new TcpThread(null,null,this);
+//        Thread t = new Thread(runnable);
+//        t.start();
     }
 }
